@@ -75,6 +75,27 @@ type PrivateKey struct {
 	privateKey [1024]uint32
 }
 
+// FromBytes deserializes a Ring-LWE public key.
+func (priv *PrivateKey) FromBytes(b []byte) error {
+	if len(b) != PrivateKeySize {
+		return ErrInvalidPublicKeySize
+	}
+	for i := range priv.privateKey {
+		priv.privateKey[i] = binary.LittleEndian.Uint32(b[i*4:])
+	}
+	return nil
+}
+
+// Bytes serializes a Ring-LWE public key.
+func (priv *PrivateKey) Bytes() []byte {
+	ret := make([]byte, PrivateKeySize)
+	for i, v := range priv.privateKey {
+		binary.LittleEndian.PutUint32(ret[i*4:], v)
+	}
+	return ret
+}
+
+
 // RecData is the Ring-LWE reconcilliation data.
 type RecData struct {
 	recData [16]uint64
